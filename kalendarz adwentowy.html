@@ -405,21 +405,6 @@
         <div class="trunk"></div> <!-- Pień choinki -->
     </div>
     <script>
-        function setCookie(name, value, days) {
-    const expires = new Date();
-    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-}
-function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-}
         const calendarContainer = document.querySelector('.calendar');
         const daysInMonth = 24;
         const backTexts = [
@@ -499,12 +484,41 @@ function getCookie(name) {
         updateCountdown();
         setInterval(updateCountdown, 1000 * 60 * 60 * 24);
     
-        // Resetowanie
+        // Resetowanie bez odświeżania strony
         document.getElementById('resetButton').addEventListener('click', () => {
-            document.cookie = 'openedDays=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/'; // Usunięcie ciasteczka
-            location.reload();
+            // Usunięcie klasy 'opened' ze wszystkich kafelków
+            const allDays = document.querySelectorAll('.day');
+            allDays.forEach(dayElement => {
+                dayElement.classList.remove('opened');
+            });
+    
+            // Resetowanie ciasteczka
+            setCookie('openedDays', JSON.stringify([]), 7); // Resetowanie ciasteczka
+    
+            openedDays = []; // Wyczyszczenie tablicy otwartych dni
+            console.log('Dni zostały zresetowane');
         });
+    
+        // Funkcja do ustawiania ciasteczek
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+    
+        // Funkcja do odczytu ciasteczek
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
     </script>
+    
     
     
 </body>
