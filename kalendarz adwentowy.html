@@ -470,19 +470,25 @@
         // Funkcja do odliczania dni do Świąt
         function updateCountdown() {
             const today = new Date();
-            const christmas = new Date(today.getFullYear(), 11, 24);
-            const timeLeft = christmas - today;
-    
-            if (timeLeft <= 0) {
-                document.getElementById('countdown').textContent = '🎄 Wesołych Świąt! 🎄';
+            const christmas = new Date(2024, 11, 24); // 24 grudnia 2024
+
+            if (today.getDate() === christmas.getDate() && today.getMonth() === christmas.getMonth() && today.getFullYear() === christmas.getFullYear()) {
+                // Wyświetl "Wigilia!!!" jeśli dzisiaj jest 24 grudnia 2024
+                document.getElementById('countdown').textContent = "Wigilia!!!";
+            } else if (today > christmas) {
+                // Wyświetl "Już po Wigilii :(" jeśli dzisiaj jest po 24 grudnia 2024
+                document.getElementById('countdown').textContent = "Już po Wigilii :(";
             } else {
-                const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                document.getElementById('countdown').textContent = `${daysLeft} dni do Świąt`;
+                // Odliczaj dni do Wigilii jeśli dzisiaj jest przed 24 grudnia 2024
+                const timeDiff = christmas - today;
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                document.getElementById('countdown').textContent = `Pozostało ${days + 1} dni do Wigilii!`;
             }
         }
-    
+
+        // Zaktualizuj odliczanie na stronie
         updateCountdown();
-        setInterval(updateCountdown, 1000 * 60 * 60 * 24);
+        setInterval(updateCountdown, 1000 * 60 * 60 * 24); // Aktualizacja co dzień
     
         // Resetowanie bez odświeżania strony
         document.getElementById('resetButton').addEventListener('click', () => {
@@ -517,6 +523,38 @@
             }
             return null;
         }
+
+        // Funkcja tworząca śnieżynki
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.textContent = '❄';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.top = Math.random() * 100 + 'vh';
+            snowflake.style.opacity = Math.random();
+            snowflake.style.fontSize = Math.random() * 30 + 20 + 'px';
+            document.body.appendChild(snowflake);
+            setTimeout(() => {
+                snowflake.remove();
+            }, 10000);
+        }
+
+        setInterval(createSnowflake, 150);
+
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.textContent = '★';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.fontSize = Math.random() * 15 + 15 + 'px';
+            document.body.appendChild(star);
+            setTimeout(() => {
+                star.remove();
+            }, 2000);
+        }
+
+        setInterval(createStar, 200);
     </script>
     
     
