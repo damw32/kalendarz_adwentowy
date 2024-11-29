@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalendarz Adwentowy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            background: url('https://www.pixelstalk.net/wp-content/uploads/2016/08/HD-1920x1080-Christmas-Image.jpg') no-repeat center center fixed;
+            background-size: 100% 100%;
+            color: white;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 65px;
+            color: red;
+            background: linear-gradient(45deg, #FF6347, #FFD700, #FF1493, #32CD32, #00BFFF);
+            background-clip: text;
+            animation: glitter 1.5s infinite;
+            text-shadow: 3px 3px 10px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+            margin-bottom: -10px;
+            position: relative;
+            z-index: 999;
+        }
+
+        @keyframes glitter {
+            0% {
+                background-position: -200% 0%;
+            }
+            100% {
+                background-position: 200% 0%;
+            }
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            max-width: 70%;
+            margin: 20px auto;
+        }
+
+        .day {
+            position: relative;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: transform 1s ease;
+            cursor: pointer;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #e63946;
+            font-size: 16px;
+            padding: 90px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .day.locked {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .day.opened {
+            transform: rotateY(180deg);
+        }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            border-radius: 5px;
+        }
+
+        .front {
+            background: rgba(255, 255, 255, 0.8);
+            color: #e63946;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .back {
+            background: linear-gradient(45deg, #e43206, #81ff47);
+            color: white;
+            transform: rotateY(180deg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            align-items: center;
+        }
+
+        .countdown {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            z-index: 999;
+        }
+
+        .snowflake {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            font-size: 1em;
+            color: white;
+            animation: fall 10s linear infinite, side-to-side 3s ease-in-out infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-20vh); }
+            100% { transform: translateY(120vh); }
+        }
+
+        @keyframes side-to-side {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+        }
+
+        .back img {
+            object-fit: cover; /* Obrazek zachowuje proporcje i wypełnia przestrzeń */
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .star {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            font-size: 2em;
+            color: yellow;
+            animation: twinkle 1.5s infinite alternate;
+            opacity: 0.8;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        .reset-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #e63946;
+            color: white;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .reset-button:hover {
+            background-color: #d62828;
+        }
+
+        /* Choinka */
+        .tree {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid #228B22;
+            position: absolute; /* Zmienione z 'relative' na 'absolute' */
+            margin-bottom: 10px;
+            display: inline-block;
+            bottom: 50%; /* Ustawienie choinki na środku w pionie */
+            transform: translateY(50%); /* Wyrównanie na środek w pionie */
+        }
+        /* Choinki na górze */
+.tree.top {
+    position: absolute;
+    top: 20%; /* Ustawienie choinki w górnej części */
+    right: 2.3%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.tree.top1 {
+    position: absolute;
+    top: 20%; /* Ustawienie choinki w górnej części */
+    left: 7.5%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* Choinki na dole */
+.tree.bottom {
+    position: absolute;
+    bottom: 5%; /* Ustawienie choinki w dolnej części */
+    left: 7.5%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.tree.bottom1 {
+    position: absolute;
+    bottom: 5%; /* Ustawienie choinki w dolnej części */
+    right: 2.3%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* Choinki po lewej stronie */
+.tree.left {
+    position: absolute;
+    top: 57.5%;
+    left: 5%; /* Ustawienie choinki bardziej w lewo */
+    transform: translateY(-50%);
+    z-index: 1000;
+}
+
+/* Choinki po prawej stronie */
+.tree.right {
+    position: absolute;
+    top: 57.5%;
+    right: 5%; /* Ustawienie choinki bardziej w lewo */
+    transform: translateY(-50%);
+    z-index: 1000;
+}
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 100px;
+            height: 100px;
+            background-color: #228B22;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .tree .trunk {
+            width: 30px;
+            height: 20px;
+            background-color: #8B4513;
+            position: absolute;
+            bottom: -120px; /* Pień poniżej choinki */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Ozdoby na choince */
+        .tree .decoration {
+            position: absolute;
+            background-color: red;
+            border-radius: 50%;
+            animation: blink 1s infinite alternate;
+        }
+
+        .tree .decoration-star {
+            position: absolute;
+            background-color: rgb(251, 255, 0);
+            border-radius: 40%;
+            animation: blink 1s infinite alternate;
+        }
+
+        .tree .decoration-star{
+            top: -70px;
+            left: 0px;
+            width: 30px;
+            height: 30px;
+            background-color: yellow;
+            clip-path: polygon(50% 0%, 65% 40%, 100% 40%, 70% 65%, 80% 100%, 50% 75%, 20% 100%, 30% 65%, 0% 40%, 35% 40%);
+            transform: translateX(-50%);
+        }
+
+        .tree .decoration:nth-child(1) {
+            top: 10px;
+            left: -20px;
+            width: 12px;
+            height: 12px;
+        }
+
+        .tree .decoration:nth-child(2) {
+            top: 40px;
+            left: 10px;
+            width: 12px;
+            height: 12px;
+        }
+
+        .tree .decoration:nth-child(3) {
+            top: 60px;
+            left: -25px;
+            width: 12px;
+            height: 12px;
+        }
+
+        .tree .decoration:nth-child(4) {
+            top: -10px;
+            left: 5px;
+            width: 12px;
+            height: 12px;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Stylizacja gwiazdki na czubku choinki */
+.star-top {
+    position: absolute;
+    top: -40px; /* Umiejscowienie gwiazdki na czubku */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2em;
+    color: yellow;
+    text-shadow: 0 0 10px yellow, 0 0 20px yellow, 0 0 30px yellow;
+    animation: twinkle 1.5s infinite alternate;
+    opacity: 0.8;
+}
+
+/* Animacja migotania gwiazdy */
+@keyframes twinkle {
+    0% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+    </style>
+</head>
+<body>
+    <h1>🎀Kalendarz Adwentowy dla Julci🎀</h1>
+    <div class="calendar"></div>
+    <div class="countdown" id="countdown"></div>
+    <button class="reset-button" id="resetButton">Zresetuj Kafelki</button>
+    <div class="tree top">
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration-star"></div>
+        <div class="trunk"></div> <!-- Pień choinki -->
+    </div>
+
+    <div class="tree top1">
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration-star"></div>
+        <div class="trunk"></div> <!-- Pień choinki -->
+    </div>
+    
+    <div class="tree left">
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration-star"></div>
+        <div class="trunk"></div> <!-- Pień choinki -->
+    </div>
+    
+    <div class="tree right">
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration-star"></div>
+        <div class="trunk"></div> <!-- Pień choinki -->
+    </div>
+    
+    <div class="tree bottom">
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration-star"></div>
+        <div class="trunk"></div> <!-- Pień choinki -->
+    </div>
+
+    <div class="tree bottom1">
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration"></div>
+        <div class="decoration-star"></div>
+        <div class="trunk"></div> <!-- Pień choinki -->
+    </div>
+    <script>
+// Ręcznie wpisane teksty na odwrocie każdego kafelka
+        const calendarContainer = document.querySelector('.calendar');
+        const daysInMonth = 24;
+
+        // Ręcznie wpisane teksty na odwrocie każdego kafelka
+        const backTexts = [
+            "🎄 Kocham Cię bubu za to, że jesteś 🎁", "❄️ Niespodzianka 2 🌟", "🎁 3 lata i miesiąc!! Jupiii!! Jeszcze cała wieczność przed nami!! 🎁", "🎁 Niespodzianka 4",
+            "🎁 Niespodzianka 5", "🎁 Jesteś miłością mojego życia 🎁", "🎁 Niespodzianka 7", "🎁 Niespodzianka 8",
+            "🎁 Niespodzianka 9", "🎁 Niespodzianka 10", "🎁 Niespodzianka 11", "🎁 Niespodzianka 12",
+            "🎁 Niespodzianka 13", "🎁 Niespodzianka 14", "🎁 Niespodzianka 15", "🎁 Niespodzianka 16",
+            "🎁 Niespodzianka 17", "🎁 Niespodzianka 18", "🎁 Niespodzianka 19", "🎁 Niespodzianka 20",
+            "🎁 Niespodzianka 21", "🎁 Niespodzianka 22", "🎁 Niespodzianka 23", "🎁 Niespodzianka 24"
+        ];
+
+        // Dni, w których na odwrocie będzie obrazek
+        const daysWithImage = [16, 20];  // Przykładowo, dni 5, 10, 15, 20
+
+        // Obrazki przypisane do konkretnych dni
+        const images = {
+            16: 'https://via.placeholder.com/150/3357FF/FFFFFF?text=Obrazek+3', // Obrazek dla dnia 15
+            20: 'https://via.placeholder.com/150/5733FF/FFFFFF?text=Obrazek+4'  // Obrazek dla dnia 20
+        };
+
+        // Sprawdź, czy kolejność kafelków już istnieje w localStorage
+        let randomOrder = JSON.parse(localStorage.getItem('randomOrder'));
+
+        // Jeśli nie istnieje, losujemy kolejność i zapisujemy ją w localStorage
+        if (!randomOrder) {
+            randomOrder = Array.from({ length: daysInMonth }, (_, i) => i).sort(() => Math.random() - 0.5);
+            localStorage.setItem('randomOrder', JSON.stringify(randomOrder));
+        }
+
+        // Wczytaj stan otwartych kafelków z localStorage
+        const openedDays = JSON.parse(localStorage.getItem('openedDays')) || [];
+
+        randomOrder.forEach((randomDay, index) => {
+            const day = randomDay + 1;  // Ustal numer dnia
+            const dayElement = document.createElement('div');
+            dayElement.classList.add('day');
+            dayElement.dataset.day = day;
+
+            const front = document.createElement('div');
+            front.classList.add('front');
+            front.textContent = day;
+
+            const back = document.createElement('div');
+            back.classList.add('back');
+
+            // Sprawdź, czy dzień ma zawierać obrazek
+            if (daysWithImage.includes(day)) {
+                // Przypisz odpowiedni obrazek z tablicy `images`
+                const img = document.createElement('img');
+                img.src = images[day];  // Pobierz obrazek przypisany do danego dnia
+                img.alt = `Obrazek na dzień ${day}`;
+                back.appendChild(img);
+            } else {
+                back.textContent = backTexts[index];  // Ręcznie przypisany tekst na odwrocie
+            }
+
+            dayElement.appendChild(front);
+            dayElement.appendChild(back);
+
+            const today = new Date();
+            const currentDate = today.getDate();
+
+            // Sprawdź, czy dzisiejszy dzień jest po 24 grudnia 2024
+            const christmas = new Date(2024, 11, 24);
+            const isAfterChristmas = today > christmas;
+
+            if (day > currentDate && !isAfterChristmas) {
+                dayElement.classList.add('locked'); // Kafelek zablokowany, jeśli jest po dniu dzisiejszym
+            }
+
+            // Jeśli kafelek został wcześniej otwarty, oznacz go jako otwarty
+            if (openedDays.includes(day)) {
+                dayElement.classList.add('opened');
+            }
+
+            // Dodaj kafelek do kalendarza
+            calendarContainer.appendChild(dayElement);
+
+            // Dodaj obsługę kliknięcia
+            dayElement.addEventListener('click', function() {
+                if (dayElement.classList.contains('opened') || dayElement.classList.contains('locked')) return;
+
+                dayElement.classList.add('opened');
+
+                // Zapisz otwarty kafelek w localStorage
+                if (!openedDays.includes(day)) {
+                    openedDays.push(day);
+                    localStorage.setItem('openedDays', JSON.stringify(openedDays));
+                }
+            });
+        });
+
+        function updateCountdown() {
+            const today = new Date();
+            const christmas = new Date(2024, 11, 24); // 24 grudnia 2024
+
+            if (today.getDate() === christmas.getDate() && today.getMonth() === christmas.getMonth() && today.getFullYear() === christmas.getFullYear()) {
+                // Wyświetl "Wigilia!!!" jeśli dzisiaj jest 24 grudnia 2024
+                document.getElementById('countdown').textContent = "Wigilia!!!";
+            } else if (today > christmas) {
+                // Wyświetl "Już po Wigilii :(" jeśli dzisiaj jest po 24 grudnia 2024
+                document.getElementById('countdown').textContent = "Już po Wigilii :(";
+            } else {
+                // Odliczaj dni do Wigilii jeśli dzisiaj jest przed 24 grudnia 2024
+                const timeDiff = christmas - today;
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                document.getElementById('countdown').textContent = `Pozostało ${days + 1} dni do Wigilii!`;
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+
+        // Funkcja resetująca kafelki
+        document.getElementById('resetButton').addEventListener('click', function() {
+            // Po 24 grudnia 2024 resetowanie będzie możliwe
+            const today = new Date();
+            const christmas = new Date(2024, 11, 24);
+
+            // Resetowanie kafelków po 24 grudnia
+            if (today > christmas) {
+                localStorage.removeItem('openedDays'); // Usunięcie zapisanych otwartych kafelków
+                const allDays = document.querySelectorAll('.day');
+                allDays.forEach(day => {
+                    day.classList.remove('opened'); // Usunięcie klasy "opened" z wszystkich kafelków
+                });
+            } else {
+                // Resetowanie tylko przed 24 grudnia
+                localStorage.removeItem('openedDays');
+                const allDays = document.querySelectorAll('.day');
+                allDays.forEach(day => {
+                    day.classList.remove('opened');
+                });
+            }
+        });
+
+        // Funkcja tworząca śnieżynki
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.textContent = '❄';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.top = Math.random() * 100 + 'vh';
+            snowflake.style.opacity = Math.random();
+            snowflake.style.fontSize = Math.random() * 30 + 20 + 'px';
+            document.body.appendChild(snowflake);
+            setTimeout(() => {
+                snowflake.remove();
+            }, 10000);
+        }
+
+        setInterval(createSnowflake, 150);
+
+        // function createStar() {
+        //     const star = document.createElement('div');
+        //     star.classList.add('star');
+        //     star.textContent = '★';
+        //     star.style.left = Math.random() * 100 + 'vw';
+        //     star.style.top = Math.random() * 100 + 'vh';
+        //     star.style.fontSize = Math.random() * 15 + 15 + 'px';
+        //     document.body.appendChild(star);
+        //     setTimeout(() => {
+        //         star.remove();
+        //     }, 2000);
+        // }
+
+        // setInterval(createStar, 200);
+    </script>
+</body>
+</html>
