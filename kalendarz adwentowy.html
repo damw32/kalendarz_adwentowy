@@ -130,7 +130,7 @@
         }
 
         .back img {
-            object-fit: cover; /* Obrazek zachowuje proporcje i wypełnia przestrzeń */
+            object-fit: cover;
             width: 100%;
             height: 100%;
             border-radius: 5px;
@@ -405,11 +405,23 @@
         <div class="trunk"></div> <!-- Pień choinki -->
     </div>
     <script>
-// Ręcznie wpisane teksty na odwrocie każdego kafelka
+        function setCookie(name, value, days) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+}
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
         const calendarContainer = document.querySelector('.calendar');
         const daysInMonth = 24;
-
-        // Ręcznie wpisane teksty na odwrocie każdego kafelka
         const backTexts = [
             "🎄 Kocham Cię bubu za to, że jesteś 🎁", "❄️ Niespodzianka 2 🌟", "🎁 3 lata i miesiąc!! Jupiii!! Jeszcze cała wieczność przed nami!! 🎁", "🎁 Niespodzianka 4",
             "🎁 Niespodzianka 5", "🎁 Jesteś miłością mojego życia 🎁", "🎁 Niespodzianka 7", "🎁 Niespodzianka 8",
@@ -418,163 +430,82 @@
             "🎁 Niespodzianka 17", "🎁 Niespodzianka 18", "🎁 Niespodzianka 19", "🎁 Niespodzianka 20",
             "🎁 Niespodzianka 21", "🎁 Niespodzianka 22", "🎁 Niespodzianka 23", "🎁 Niespodzianka 24"
         ];
-
-        // Dni, w których na odwrocie będzie obrazek
-        const daysWithImage = [16, 20];  // Przykładowo, dni 5, 10, 15, 20
-
-        // Obrazki przypisane do konkretnych dni
+    
+        const daysWithImage = [16, 20];
         const images = {
-            16: 'https://via.placeholder.com/150/3357FF/FFFFFF?text=Obrazek+3', // Obrazek dla dnia 15
-            20: 'https://via.placeholder.com/150/5733FF/FFFFFF?text=Obrazek+4'  // Obrazek dla dnia 20
+            16: 'https://via.placeholder.com/150/3357FF/FFFFFF?text=Obrazek+3',
+            20: 'https://via.placeholder.com/150/5733FF/FFFFFF?text=Obrazek+4'
         };
-
-        // Sprawdź, czy kolejność kafelków już istnieje w localStorage
-        let randomOrder = JSON.parse(localStorage.getItem('randomOrder'));
-
-        // Jeśli nie istnieje, losujemy kolejność i zapisujemy ją w localStorage
-        if (!randomOrder) {
-            randomOrder = Array.from({ length: daysInMonth }, (_, i) => i).sort(() => Math.random() - 0.5);
-            localStorage.setItem('randomOrder', JSON.stringify(randomOrder));
-        }
-
-        // Wczytaj stan otwartych kafelków z localStorage
-        const openedDays = JSON.parse(localStorage.getItem('openedDays')) || [];
-
-        randomOrder.forEach((randomDay, index) => {
-            const day = randomDay + 1;  // Ustal numer dnia
+    
+        // Odczytanie danych o otwartych dniach z ciasteczka
+        let openedDays = JSON.parse(getCookie('openedDays')) || [];
+        console.log('Odczytane dane z ciasteczka: ', openedDays);
+    
+        // Tworzenie kafelków
+        for (let day = 1; day <= daysInMonth; day++) {
             const dayElement = document.createElement('div');
             dayElement.classList.add('day');
             dayElement.dataset.day = day;
-
+    
             const front = document.createElement('div');
             front.classList.add('front');
             front.textContent = day;
-
+    
             const back = document.createElement('div');
             back.classList.add('back');
-
-            // Sprawdź, czy dzień ma zawierać obrazek
+    
             if (daysWithImage.includes(day)) {
-                // Przypisz odpowiedni obrazek z tablicy `images`
                 const img = document.createElement('img');
-                img.src = images[day];  // Pobierz obrazek przypisany do danego dnia
+                img.src = images[day];
                 img.alt = `Obrazek na dzień ${day}`;
                 back.appendChild(img);
             } else {
-                back.textContent = backTexts[index];  // Ręcznie przypisany tekst na odwrocie
+                back.textContent = backTexts[day - 1];
             }
-
+    
             dayElement.appendChild(front);
             dayElement.appendChild(back);
-
-            const today = new Date();
-            const currentDate = today.getDate();
-
-            // Sprawdź, czy dzisiejszy dzień jest po 24 grudnia 2024
-            const christmas = new Date(2024, 11, 24);
-            const isAfterChristmas = today > christmas;
-
-            if (day > currentDate && !isAfterChristmas) {
-                dayElement.classList.add('locked'); // Kafelek zablokowany, jeśli jest po dniu dzisiejszym
-            }
-
-            // Jeśli kafelek został wcześniej otwarty, oznacz go jako otwarty
+    
             if (openedDays.includes(day)) {
                 dayElement.classList.add('opened');
             }
-
-            // Dodaj kafelek do kalendarza
-            calendarContainer.appendChild(dayElement);
-
-            // Dodaj obsługę kliknięcia
-            dayElement.addEventListener('click', function() {
-                if (dayElement.classList.contains('opened') || dayElement.classList.contains('locked')) return;
-
-                dayElement.classList.add('opened');
-
-                // Zapisz otwarty kafelek w localStorage
+    
+            dayElement.addEventListener('click', () => {
                 if (!openedDays.includes(day)) {
+                    dayElement.classList.add('opened');
                     openedDays.push(day);
-                    localStorage.setItem('openedDays', JSON.stringify(openedDays));
+                    setCookie('openedDays', JSON.stringify(openedDays), 7); // Przechowujemy ciasteczko przez 7 dni
+                    console.log('Zapisane otwarte dni w ciasteczku: ', openedDays); // Diagnostyka zapisu
                 }
             });
-        });
-
+    
+            calendarContainer.appendChild(dayElement);
+        }
+    
+        // Funkcja do odliczania dni do Świąt
         function updateCountdown() {
             const today = new Date();
-            const christmas = new Date(2024, 11, 24); // 24 grudnia 2024
-
-            if (today.getDate() === christmas.getDate() && today.getMonth() === christmas.getMonth() && today.getFullYear() === christmas.getFullYear()) {
-                // Wyświetl "Wigilia!!!" jeśli dzisiaj jest 24 grudnia 2024
-                document.getElementById('countdown').textContent = "Wigilia!!!";
-            } else if (today > christmas) {
-                // Wyświetl "Już po Wigilii :(" jeśli dzisiaj jest po 24 grudnia 2024
-                document.getElementById('countdown').textContent = "Już po Wigilii :(";
+            const christmas = new Date(today.getFullYear(), 11, 24);
+            const timeLeft = christmas - today;
+    
+            if (timeLeft <= 0) {
+                document.getElementById('countdown').textContent = '🎄 Wesołych Świąt! 🎄';
             } else {
-                // Odliczaj dni do Wigilii jeśli dzisiaj jest przed 24 grudnia 2024
-                const timeDiff = christmas - today;
-                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                document.getElementById('countdown').textContent = `Pozostało ${days + 1} dni do Wigilii!`;
+                const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                document.getElementById('countdown').textContent = `${daysLeft} dni do Świąt`;
             }
         }
-
+    
         updateCountdown();
-        setInterval(updateCountdown, 60000);
-
-        // Funkcja resetująca kafelki
-        document.getElementById('resetButton').addEventListener('click', function() {
-            // Po 24 grudnia 2024 resetowanie będzie możliwe
-            const today = new Date();
-            const christmas = new Date(2024, 11, 24);
-
-            // Resetowanie kafelków po 24 grudnia
-            if (today > christmas) {
-                localStorage.removeItem('openedDays'); // Usunięcie zapisanych otwartych kafelków
-                const allDays = document.querySelectorAll('.day');
-                allDays.forEach(day => {
-                    day.classList.remove('opened'); // Usunięcie klasy "opened" z wszystkich kafelków
-                });
-            } else {
-                // Resetowanie tylko przed 24 grudnia
-                localStorage.removeItem('openedDays');
-                const allDays = document.querySelectorAll('.day');
-                allDays.forEach(day => {
-                    day.classList.remove('opened');
-                });
-            }
+        setInterval(updateCountdown, 1000 * 60 * 60 * 24);
+    
+        // Resetowanie
+        document.getElementById('resetButton').addEventListener('click', () => {
+            document.cookie = 'openedDays=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/'; // Usunięcie ciasteczka
+            location.reload();
         });
-
-        // Funkcja tworząca śnieżynki
-        function createSnowflake() {
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            snowflake.textContent = '❄';
-            snowflake.style.left = Math.random() * 100 + 'vw';
-            snowflake.style.top = Math.random() * 100 + 'vh';
-            snowflake.style.opacity = Math.random();
-            snowflake.style.fontSize = Math.random() * 30 + 20 + 'px';
-            document.body.appendChild(snowflake);
-            setTimeout(() => {
-                snowflake.remove();
-            }, 10000);
-        }
-
-        setInterval(createSnowflake, 150);
-
-        // function createStar() {
-        //     const star = document.createElement('div');
-        //     star.classList.add('star');
-        //     star.textContent = '★';
-        //     star.style.left = Math.random() * 100 + 'vw';
-        //     star.style.top = Math.random() * 100 + 'vh';
-        //     star.style.fontSize = Math.random() * 15 + 15 + 'px';
-        //     document.body.appendChild(star);
-        //     setTimeout(() => {
-        //         star.remove();
-        //     }, 2000);
-        // }
-
-        // setInterval(createStar, 200);
     </script>
+    
+    
 </body>
 </html>
