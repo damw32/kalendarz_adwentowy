@@ -427,46 +427,58 @@
         let openedDays = JSON.parse(getCookie('openedDays')) || [];
         console.log('Odczytane dane z ciasteczka: ', openedDays);
     
-        // Tworzenie kafelków
         for (let day = 1; day <= daysInMonth; day++) {
-            const dayElement = document.createElement('div');
-            dayElement.classList.add('day');
-            dayElement.dataset.day = day;
-    
-            const front = document.createElement('div');
-            front.classList.add('front');
-            front.textContent = day;
-    
-            const back = document.createElement('div');
-            back.classList.add('back');
-    
-            if (daysWithImage.includes(day)) {
-                const img = document.createElement('img');
-                img.src = images[day];
-                img.alt = `Obrazek na dzień ${day}`;
-                back.appendChild(img);
-            } else {
-                back.textContent = backTexts[day - 1];
-            }
-    
-            dayElement.appendChild(front);
-            dayElement.appendChild(back);
-    
-            if (openedDays.includes(day)) {
-                dayElement.classList.add('opened');
-            }
-    
-            dayElement.addEventListener('click', () => {
-                if (!openedDays.includes(day)) {
-                    dayElement.classList.add('opened');
-                    openedDays.push(day);
-                    setCookie('openedDays', JSON.stringify(openedDays), 7); // Przechowujemy ciasteczko przez 7 dni
-                    console.log('Zapisane otwarte dni w ciasteczku: ', openedDays); // Diagnostyka zapisu
-                }
-            });
-    
-            calendarContainer.appendChild(dayElement);
+    const dayElement = document.createElement('div');
+    dayElement.classList.add('day');
+    dayElement.dataset.day = day;
+
+    const front = document.createElement('div');
+    front.classList.add('front');
+    front.textContent = day;
+
+    const back = document.createElement('div');
+    back.classList.add('back');
+
+    if (daysWithImage.includes(day)) {
+        const img = document.createElement('img');
+        img.src = images[day];
+        img.alt = `Obrazek na dzień ${day}`;
+        back.appendChild(img);
+    } else {
+        back.textContent = backTexts[day - 1];
+    }
+
+    dayElement.appendChild(front);
+    dayElement.appendChild(back);
+
+    // Sprawdzanie aktualnej daty
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    if (
+        currentYear < 2024 || 
+        (currentYear === 2024 && currentMonth < 11) || 
+        (currentYear === 2024 && currentMonth === 11 && day > currentDay)
+    ) {
+        dayElement.classList.add('locked');
+    } else if (openedDays.includes(day)) {
+        dayElement.classList.add('opened');
+    }
+
+    // Obsługa kliknięcia na kafelek
+    dayElement.addEventListener('click', () => {
+        if (!dayElement.classList.contains('locked') && !openedDays.includes(day)) {
+            dayElement.classList.add('opened');
+            openedDays.push(day);
+            setCookie('openedDays', JSON.stringify(openedDays), 7); // Przechowujemy ciasteczko przez 7 dni
+            console.log('Zapisane otwarte dni w ciasteczku: ', openedDays); // Diagnostyka zapisu
         }
+    });
+
+    calendarContainer.appendChild(dayElement);
+}
     
         // Funkcja do odliczania dni do Świąt
         function updateCountdown() {
